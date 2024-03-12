@@ -3,7 +3,6 @@ import glob
 import os
 import re
 from logging.config import dictConfig
-
 import openpyxl
 
 
@@ -124,6 +123,11 @@ class ExcepClass(LOG2):
         return exceldata
 
     def excelDataAppend(self ,exceldata , excelDataArr ,origenData) -> {}:
+
+        print(f'exceldata :: {exceldata}')
+        print(f'excelDataArr :: {excelDataArr}')
+        print(f'origenData :: {origenData}')
+
         for key in exceldata:
             if exceldata[key]['data'] == '':
                 return {'exceldata':exceldata ,'excelDataArr':excelDataArr }
@@ -141,8 +145,8 @@ class ExcepClass(LOG2):
         # exceldata = {'Hostname':'','show mac address-table':'', 'show ip arp vrf all':'' , 'Uptime':''}
         exceldata = self.getExcelDataReset(fileDatas)
         origenData = copy.deepcopy(exceldata)
-        print(f'exceldata초기화 : [{exceldata}]')
-        print(f'fileDatas : [{fileDatas}]')
+        # print(f'exceldata초기화 : [{exceldata}]')
+        # print(f'fileDatas : [{fileDatas}]')
 
         excelDataArr = []
         for row in self.sheet.iter_rows():
@@ -151,12 +155,13 @@ class ExcepClass(LOG2):
             #     excelDataArr.append(exceldata)
             #     exceldata = {'Hostname':'','show mac address-table':'', 'show ip arp vrf all':'' , 'Uptime':''}
 
-
             jsonReturnData = self.excelDataAppend(exceldata , excelDataArr , origenData)
             exceldata = jsonReturnData['exceldata']
             excelDataArr = jsonReturnData['excelDataArr']
 
+
             for cell in row:
+                # print(f'cell.value==key:::::::::::[{cell.value}]')
                 for key in origenData:
                     if cell.value==key:
                         logNamePositionNumber = self.getNumber(cell.coordinate , 0)
@@ -191,6 +196,7 @@ class ExcepClass(LOG2):
 
 
     def addSheetCell(self, excelData , filedata):
+        print(f'def addSheetCell(self, excelData , filedata): [{excelData}]')
         for key in excelData:
             try:
                 self.sheet.cell(row=excelData[key]['row'], column=excelData[key]['column']).value = filedata[key]['data']
@@ -226,9 +232,13 @@ class ExcepClass(LOG2):
                                        , self.dynamicAddressCountLocalSet
                                        ) for i in self.findLogFile()]
 
+
+
+        # print(f'fileDatas :: [{fileDatas}]')
+
         excelLoopPostionArr = self.getExcelPostionData(fileDatas)
 
-        # print(f'excelLoopPostionArr :: [{excelLoopPostionArr}]')
+        print(f'excelLoopPostionArr :: [{excelLoopPostionArr}]')
 
         # 엑셀의 파일명과 바꿔야될 포지션 정보를 모두 담았다.
         self.secondExec(fileDatas, excelLoopPostionArr)
@@ -280,29 +290,33 @@ class ExcepClass(LOG2):
         # excelRowPosition = 50
         excelColumnPosition = 26;
         if searchFileToString in line:
-            try:
-                tmpData = line.split(':')[1]
-                tmpData = tmpData.replace("\n", "").strip()
-                jsonParam[searchExcelToString] = {'data':tmpData+' (개)','searchExcelToString':searchExcelToString, 'excelColumnPosition':excelColumnPosition};
-                # jsonParam[searchExcelToString] = {'data':tmpData+' (개)','searchExcelToString':searchExcelToString,'excelColumnPosition':excelColumnPosition, 'excelRowPosition':excelRowPosition};
-            except:
-                print('except')
+            tmpData = line.split(':')
+            if len(tmpData) == 1:
+                return jsonParam;
+            tmpData = line.split(':')[1]
+            tmpData = tmpData.replace("\n", "").strip()
+            jsonParam[searchExcelToString] = {'data':tmpData+' (개)','searchExcelToString':searchExcelToString, 'excelColumnPosition':excelColumnPosition};
+            # jsonParam[searchExcelToString] = {'data':tmpData+' (개)','searchExcelToString':searchExcelToString,'excelColumnPosition':excelColumnPosition, 'excelRowPosition':excelRowPosition};
+
         return jsonParam;
 
     def dynamicAddressCountLocalSet(self, line , jsonParam) -> any:
         """ 포지션 기준은 hostname 기준으로  """
         searchFileToString = 'Dynamic Local Address Count'
-        searchExcelToString = 'show mac address-table_local'
+        searchExcelToString = 'show mac address-table'
         # excelRowPosition = 50
         excelColumnPosition = 26;
         if searchFileToString in line:
-            try:
-                tmpData = line.split(':')[1]
-                tmpData = tmpData.replace("\n", "").strip()
-                jsonParam[searchExcelToString] = {'data':tmpData+' (개)','searchExcelToString':searchExcelToString ,'excelColumnPosition':excelColumnPosition};
-                # jsonParam[searchExcelToString] = {'data':tmpData+' (개)','searchExcelToString':searchExcelToString,'excelColumnPosition':excelColumnPosition, 'excelRowPosition':excelRowPosition};
-            except:
-                print('except')
+            tmpData = line.split(':')
+            if len(tmpData) == 1:
+                return jsonParam;
+
+            tmpData = line.split(':')[1]
+            tmpData = tmpData.replace("\n", "").strip()
+            jsonParam[searchExcelToString] = {'data':tmpData+' (개)','searchExcelToString':searchExcelToString ,'excelColumnPosition':excelColumnPosition};
+            # jsonParam[searchExcelToString] = {'data':tmpData+' (개)','searchExcelToString':searchExcelToString,'excelColumnPosition':excelColumnPosition, 'excelRowPosition':excelRowPosition};
+
+            # print('except')
         return jsonParam;
 
 
