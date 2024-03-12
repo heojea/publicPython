@@ -105,6 +105,7 @@ class ExcepClass(LOG2):
 
             for cell in row:
                 for key in origenData:
+                    # logging.info(f'cell.value==key:::: [{cell.value}] [{key}]')
                     if cell.value==key:
                         logNamePositionNumber = self.getNumber(cell.coordinate , 0)
                         exceldata[key] = {'data':self.sheet.cell(row=logNamePositionNumber, column=origenData[key]['excelColumnPosition']).value , 'row':logNamePositionNumber ,'column':origenData[key]['excelColumnPosition'] }
@@ -146,8 +147,6 @@ class ExcepClass(LOG2):
 
         excelLoopPostionArr = self.getExcelPostionData(fileDatas)
 
-        # print(f'excelLoopPostionArr :: [{excelLoopPostionArr}]')
-
         # 엑셀의 파일명과 바꿔야될 포지션 정보를 모두 담았다.
         self.secondExec(fileDatas, excelLoopPostionArr)
         self.wb.save(self.file)
@@ -157,9 +156,10 @@ class ExcepClass(LOG2):
         searchFileToString = 'hostname'
         excelColumnPosition = 14;
         if searchFileToString in line:
-            tmpData = line.split(searchFileToString)[1]
-            tmpData = tmpData.replace("\n", "").strip()
-            jsonParam['Hostname'] = {'data':tmpData,'searchExcelToString':searchFileToString, 'excelRowPosition':-1 , 'excelColumnPosition':excelColumnPosition};
+            if 'hostname changed to' not in line:
+                tmpData = line.split(searchFileToString)[1]
+                tmpData = tmpData.replace("\n", "").strip()
+                jsonParam['Hostname'] = {'data':tmpData,'searchExcelToString':searchFileToString, 'excelRowPosition':-1 , 'excelColumnPosition':excelColumnPosition};
         return jsonParam;
 
     def kernelUptimeSet(self, line , jsonParam) -> any:
@@ -169,11 +169,11 @@ class ExcepClass(LOG2):
         # excelRowPosition = 1
         excelColumnPosition = 24;
         if searchFileToString in line:
-             tmpData = line.split(searchFileToString)[1]
-             tmpData = tmpData.split(',')[0]
-             tmpData = tmpData.replace("\n", "").strip()
-             jsonParam[searchExcelToString] = {'data':tmpData+'.','searchExcelToString':searchExcelToString , 'excelColumnPosition':excelColumnPosition};
-             # jsonParam[searchExcelToString] = {'data':tmpData,'searchExcelToString':searchExcelToString,'excelColumnPosition':excelColumnPosition, 'excelRowPosition':excelRowPosition};
+            tmpData = line.split(searchFileToString)[1]
+            tmpData = tmpData.split(',')[0]
+            tmpData = tmpData.replace("\n", "").strip()
+            jsonParam[searchExcelToString] = {'data':tmpData+'.','searchExcelToString':searchExcelToString , 'excelColumnPosition':excelColumnPosition};
+            # jsonParam[searchExcelToString] = {'data':tmpData,'searchExcelToString':searchExcelToString,'excelColumnPosition':excelColumnPosition, 'excelRowPosition':excelRowPosition};
         return jsonParam;
 
     def totalNumberOfEntriesSet(self, line , jsonParam) -> any:
